@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<head>
+    <!-- Load c3.css -->
+    <link href="c3.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="d3.min.js" charset="utf-8"></script>
+    <script src="c3.min.js"></script>
+</head>
+
+<body>
+    <h1>
+        Bed Time vs Coffee Consumtion
+    </h1>
+    <div id="chart1">if you see this, there's an problem</div>
+    <h1>
+        Chocolate vs User Count
+    </h1>
+    <div id="chart2">if you see this, thats problematic</div>
+    <h1>
+        Programming vs Country
+    </h1>
+    <div id="chart3">if you see this, there's still a problem</div>
+    <script type="text/javascript">
+    var user_response = [3, 1,4,3,10,4,1,2];
+    var total_responses = 28;
+    var colorscale = d3.scale.linear().domain([1,10]).range(["#fff8d0", "#7f4338"]);
+    var chart = c3.generate({
+        bindto : '#chart1',
+        data: {
+            columns: [
+                ['TypicalBedTime', 2, 1, 1.5, 1.33, .85, 1,0,3],
+            ],
+            type: 'bar',
+            colors: {
+                TypicalBedTime: '#7f4338'
+            },
+            color:
+            function (color, d) {
+                if (d.x || d.x === 0) {
+                    var response_number = user_response[d.x];
+                    return colorscale(response_number);
+                }
+            },
+        },
+        bar: {
+            width: {
+                ratio: 0.5
+            }
+        },
+        axis: {
+            rotated: true,
+            x : {
+                label:  {
+                    text: 'Typical Bed Time',
+                    position: 'outer-middle',
+                },
+                type: 'category',
+                categories: ["10:00 pm","10:30 pm","11:00 pm","11:30 pm","12:00 am","1:00 am","1:30 am","2:00 am"]
+            },
+            y: {
+                label: {
+                    text: 'Average Cups of Coffee',
+                    position: 'outer-center',
+                }
+            },
+        },
+        legend: {
+            show: false,
+        }
+    });
+var chart2 = c3.generate({
+    bindto: '#chart2',
+    data: {
+            columns: [
+                ['Chocolate',5,4,9],
+                ['Vanilla', 3,4,2],
+            ],
+            type: 'bar',
+            colors: {
+                Chocolate: '#7f4916',
+                Vanilla: '#fffbd9',
+        },
+        },
+        axis: {
+            rotated: true,
+            x : {
+                label:  {
+                    text: 'OS Preference',
+                    position: 'outer-middle',
+                },
+                type: 'category',
+                categories: ['Apple', 'Linux/Unix','Windows']
+            },
+            y: {
+                label: {
+                    text: 'User Count   ',
+                    position: 'outer-center',
+                }
+            },
+        },
+    });
+var chart3 = c3.generate({
+    bindto: '#chart3',
+    data: {
+            columns: [
+                ['Java',0,0,7,2,1,1,0,1],
+                ['Python',1,0,5,0,0,0,0,1],
+                ['Javascript',0,1,0,0,0,0,0,2],
+                ['C#',1,0,0,0,0,0,0,0],
+                ['d3.js',0,0,0,0,0,0,1,0],
+                ['MATLAB',0,0,0,0,0,0,0,1],
+                ['p5.js',1,0,0,0,0,0,0,0],
+                ['R',0,0,1,0,0,0,0,0],
+            ],
+            type: 'bar',
+            colors: {
+                Chocolate: '#7f4916',
+                Vanilla: '#fffbd9',
+        },
+        },
+        axis: {
+            x : {
+                label:  {
+                    text: 'Home Country',
+                    position: 'outer-center',
+                },
+                type: 'category',
+                categories: ['China', 'Germany','India','Iran','Nepal','Russia','Spain','United States of America']
+            },
+            y: {
+                label: {
+                    text: 'User Count   ',
+                    position: 'outer-middle',
+                }
+            },
+        },
+    });
+    </script>
+</body>
