@@ -1,5 +1,5 @@
 //Set SVG proportions
-var svg = d3.select('.plot'),
+var svg = d3.select('#plot'),
 margin = {top: 40, right: 20, bottom: 50, left:40},
 width = +svg.attr("width") - margin.left - margin.right
 height = +svg.attr("height") - margin.top - margin.bottom;
@@ -11,8 +11,58 @@ var x = d3.scaleLinear().rangeRound([0, width]),
 y = d3.scaleLinear().domain([0,30]).rangeRound([height, 0]),
 colorscale = d3.scaleLinear().range(['red','white', 'black']);
 
-//Set up date parser based on expected format of date in data
-var parseDate = d3.timeParse('%Y%m%d');
+//setup colorscale legend
+var legendsvg = d3.select('#legend')
+//Create gradient attribute
+var legend = legendsvg.append("defs")
+    .append("svg:linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "100%")
+    .attr("x2", "100%")
+    .attr("y2", "100%")
+    .attr("spreadMethod", "pad");
+    //create gradient color at 0% (low mpg)
+legend.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", 'red')
+    .attr("stop-opacity", 1);
+    //create gradient color at midpoint (overall average mpg)
+legend.append("stop")
+    .attr("offset", "50%")
+    .attr("stop-color", 'white')
+    .attr("stop-opacity", 1);
+    //create gradient color at 100% (high mpg)
+legend.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", 'black')
+    .attr("stop-opacity", 1);
+//Set the scale for the legend
+var legendy = d3.scaleLinear().range([0, 200]).domain([7, 26]);
+//Build the legend
+legendsvg.append("g")
+    .attr("class", "y axis")
+    .call(d3.axisBottom(legendy))
+    .attr('transform','translate(10,45)')
+    .append("text")
+    .style("text-anchor", "end")
+    .text("axis title");
+    //Add the title
+legendsvg.append("text")
+        .attr('x', 100)
+        .attr('y', 10)
+        .attr('text-anchor', 'middle')
+        .style('fill', 'grey')
+        .style('font-size', '10px')
+        .style('font-family', 'Sans-Serif')
+        .text('Average Miles Per Gallon')
+        //Add the rectangle with the gradient
+legendsvg.append("rect")
+    .attr("width", 200)
+    .attr("height", 25)
+    .style("fill", "url(#gradient)")
+    .attr("transform", "translate(10,20)");
+
 
 //load data
 function parse(row) {
@@ -93,7 +143,7 @@ function dataLoaded(data) {
         .attr('cx', function(d) { return x(d['Trip Distance']); })
         .attr('cy', function(d) {return y(d['MPG']); })
         .attr('r', 5)
-        .style('fill', function(d) { console.log(colorscale(d['MPG'])); return colorscale(d['MPG'])})
+        .style('fill', function(d) { return colorscale(d['MPG'])})
         .style('stroke', 'black');
 
     //Hardcoded trend line (copying statistical regression from tableau rather than recalculating it here)
@@ -118,7 +168,8 @@ function dataLoaded(data) {
         .attr('y', y(13.75) + 50)
         .attr('width', 250)
         .append('xhtml:body')
-        .html('<div style="width: 250px;"> The linear trend of the data has a small p value (meaning there likely is a correlation), but a low R value (meaning the relationship is weak)</div>')
+        .html('<div style="width: 250px;"> The linear trend of the data has a small p value (meaning there likely is a correlation), but a low R value (meaning the relationship is weak)</div>');
+
 }
 
 //run it
