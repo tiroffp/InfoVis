@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+  .bar {
+    fill: steelblue;
+  }
+
+  .bar:hover {
+    fill: brown;
+  }
+
+  .axis--x path {
+    display: none;
+  }
+
+</style>
+<svg width="960" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+  var svg = d3.select("svg"),
+  margin = {top: 50, right: 20, bottom: 50, left: 60},
+  width = +svg.attr("width") - margin.left - margin.right,
+  height = +svg.attr("height") - margin.top - margin.bottom;
+
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+  y = d3.scaleLinear().rangeRound([height, 0]);
+
+  var g = svg.append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("MOCK_DATA.csv", function(d) {
+    d['Percentage of Time Waste Doing Homework'] = +d['Percentage of Time Waste Doing Homework'];
+    return d;
+  }, function(error, data) {
+    console.log(error);
+    console.log(data);
+    if (error) return;
+
+    x.domain(data.map(function(d) { return d['Class']; }));
+    y.domain([0, d3.max(data, function(d) { return d['Percentage of Time Waste Doing Homework']; })]);
+
+    g.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+    .append("text")                  //add an axis label
+    .style('fill','gray')
+    .style('font-size','24px')
+    .attr("y", 26)
+    .attr("x", ((width + margin.left + margin.right )/ 2))
+    .attr("dy", "0.71em")
+    .attr("text-anchor", "middle")
+    .text("Class");
+
+    g.append("g")
+    .attr("class", "axis axis--y")
+    .call(d3.axisLeft(y).ticks(10, "%"))
+    .append("text")                  //add an axis label
+    .style('fill','gray')
+    .style('font-size','18px')
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", "-3em")
+    .attr("text-anchor", "end")
+    .text("Percentage of Time Wasted Doing Homework");
+
+    g.selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d['Class']); })
+    .attr("y", function(d) { return y(d['Percentage of Time Waste Doing Homework']); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return height - y(d['Percentage of Time Waste Doing Homework']); });
+
+      svg.append("text")
+        .attr("x", ((width + margin.left + margin.right )/ 2))
+        .attr("y", (margin.top / 2))
+        .attr("text-anchor", "beginning")
+        .style("font-size", "16px")
+        .style("text-decoration", "underline")
+        .text("Value vs Date Graph");
+  });
+
+</script>
