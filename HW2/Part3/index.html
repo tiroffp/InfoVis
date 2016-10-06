@@ -4,66 +4,9 @@
 <head>
 </head>
 <body>
-    <svg class="plot" id="plot" width="960" height="500"></svg>
+  <svg class="plot" id="plot" width="960" height="520"></svg>
+  <svg class="legend" id="legend" width="50" height="200"></svg>
 </body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
-//Set SVG proportions
-var svg = d3.select('.plot'),
-margin = {top: 20, right: 20, bottom: 30, left:40},
-width = +svg.attr("width") - margin.left - margin.right
-height = +svg.attr("height") - margin.top - margin.bottom;
-var g = svg.append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-//Set scaling type for x & y axes
-var x = d3.scaleTime().rangeRound([0, width]),
-y = d3.scaleLinear().domain([0,30]).rangeRound([height, 0]);
-
-//Set up date parser based on expected format of date in data
-var parseDate = d3.timeParse('%Y%m%d');
-
-//load data
-function parse(row) {
-    return row;
-}
-
-function dataLoaded(data) {
-    // Set the domains of the axes
-    x.domain([new Date(parseDate(data[0].date)),new Date(parseDate(data[data.length - 1].date))]);
-    y.domain([0, d3.max(data, function(d) { return d.temperature; })]);
-
-
-//Build visual
-    // x axis group
-    g.append("g")
-    .attr('class', 'axis axis--x')
-    .attr('transform', 'translate(0,' + height + ')')
-    .call(d3.axisBottom(x));
-
-    // y axis group
-    g.append("g")
-    .attr('class', 'axis axis--y')
-    .call(d3.axisLeft(y).ticks(30))
-
-    //datapoints
-    g.selectAll('.dots')
-        .data(data)
-        .enter()
-        .append('circle')
-        .attr('class', 'dots')
-        .attr('cx', function(d) { return x(new Date(parseDate(d.date))); })
-        .attr('cy', function(d) {return y(d.temperature); })
-        .attr('r', 5);
-    //line
-    // svg.append('path')
-    //     .datum(data)
-    //     .attr('class', 'line')
-    //     .attr('d', d3.line().x(function(d) { console.log(x(new Date(parseDate(d.date)))); return x(new Date(parseDate(d.date))); }).y(function(d) { return y(d.temperature); }));
-
-    }
-
-//run it
-d3.csv('data.csv', parse, dataLoaded);
-</script>
+<script src='Visualization.js'></script>
 </html>
