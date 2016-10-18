@@ -1,0 +1,192 @@
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>A Guide to Color When Visualizing Data</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        <link href="one-page-wonder.css" rel="stylesheet">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+            <![endif]-->
+
+        </head>
+
+        <body>
+
+            <!-- Full Width Image Header -->
+            <header class="header-image">
+                <div class="headline">
+                    <div class="container">
+                        <h1>A Guide to Color</h1>
+                        <h2>When Visualizing Data</h2>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container">
+
+                <hr class="featurette-divider">
+
+                <!-- Intro Featurette -->
+                <div class="featurette text-center" id="intro">
+                    <h2 class="featurette-heading">Color scales
+                        <span class="text-muted">add a lively dimension to visualizations</span>
+                    </h2>
+                    <p class="lead">They make graphic more engaging, memorable, and communicative. <br> When done incorrectly, however, they can warp and detract from the message the data is displaying.</p>
+                    <h1> But fear not! </h1> 
+                    <p class="lead"> There are 3 simple phrases you need to remember to get them right</p>
+                </div>
+
+                <hr class="featurette-divider">
+
+                <!-- Categorical Featurette -->
+                <div class="featurette" id="categorical">
+                    <!-- <img class="featurette-image img-responsive pull-right" src="http://placehold.it/500x500"> -->
+                    <h2 class="featurette-heading">Categorical Color Scales
+                        <span class="text-muted">are for <strong>categorical</strong> data</span>
+                    </h2>
+                    <p class="lead">This kind of color scale implies no ordering between marks, so it is best used to encode data that is in <strong>categories</strong> with no specific ordering</p>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="sub-featurette col-md-5 text-center" id="categorical">
+                            <h4 class="featurette-heading"><strong class="text-green"> Do </strong>
+                                <span class="text-muted">use this color scale when encoding distinct categories</span>
+                            </h4>
+                            <p>Pick colors that have very different hues, but not much varience in saturation and emphasis. We'll save that attribute of colors to communicate different scales! </p>
+                            <svg id="do-categorical" width='500' height="500">
+                        </div>
+                        <div class="sub-featurette text-center col-md-offset-2 col-md-5" id="categorical">
+                        <div class="hidden-md hidden-lg">
+                            <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
+                                <span class="text-muted">use it when the data has an order</span>
+                            </h4>
+                            <p>The viewer of your visualization will not precieve the order without much, much closer inspection. The next type of color scale will work much better</p>
+                            </div>
+                            <svg id="dont-categorical" width='500' height="500">
+                            <div class="hidden-xs hidden-sm">
+                            <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
+                                <span class="text-muted">use it when the data has an order</span>
+                            </h4>
+                            <p>The viewer of your visualization will not precieve the order without much, much closer inspection. The next type of color scale will work much better</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="featurette-divider">
+
+                <!-- Sequential Featurette -->
+                <div class="featurette" id="sequential">
+                    <!-- <img class="featurette-image img-responsive pull-right" src="http://placehold.it/500x500"> -->
+                    <h2 class="featurette-heading">Sequential Color Scales
+                        <span class="text-muted">are for <strong>sequential</strong> data</span>
+                    </h2>
+                    <p class="lead">This kind of color scale shows a progression, so it is best for <strong>sequencial</strong> data that has an ordering to it</p>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="sub-featurette col-md-5 text-center" id="sequential">
+                            <h4 class="featurette-heading"><strong class="text-green"> Do </strong>
+                                <span class="text-muted">use this scale when your encoding some kind of scale</span>
+                            </h4>
+                            <p>For sequential scales, we keep the hue the same, and vary the staturation and luminace. This communicates that the data has a progression</p>
+                            <svg id="do-sequential" width='500' height="500">
+                        </div>
+                        <div class="sub-featurette text-center col-md-offset-2 col-md-5" id="sequential">
+                        <div class="hidden-md hidden-lg">
+                            <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
+                                <span class="text-muted">use it when there is no order, or the order isn't important to what you are using</span>
+                            </h4>
+                            <p>This color scale will catch the viewers eye and can lead them to focus on the progression from light to dark more than what you're actually trying to show</p>
+                            </div>
+                            <svg id="dont-sequential" width='500' height="500">
+                            <div class="hidden-xs hidden-sm">
+                            <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
+                                <span class="text-muted">use it when there is no order, or the order isn't important to what you are using</span>
+                            </h4>
+                            <p>This color scale will catch the viewers eye and can lead them to focus on the progression from light to dark more than what you're actually trying to show</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="featurette-divider">
+
+                <!-- Diverging Featurette -->
+    <div class="featurette" id="diverging">
+                    <!-- <img class="featurette-image img-responsive pull-right" src="http://placehold.it/500x500"> -->
+                    <h2 class="featurette-heading">Diverging Color Scales
+                        <span class="text-muted">are for <strong>divided</strong> data</span>
+                    </h2>
+                    <p class="lead">When you data has an order with a pretty clear "center", use a <strong>diverging</strong> color scale to really highlight extreme points in the data</p>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="sub-featurette col-md-5 text-center" id="diverging">
+                            <h4 class="featurette-heading"><strong class="text-green"> Do </strong>
+                                <span class="text-muted">to show extremes in the data</span>
+                            </h4>
+                            <p>Like the sequential scale, this scale shows an order, but it also brings a pop-out effect to the data that is far away from your center point </p>
+                            <svg id="do-diverging" width='500' height="500">
+                        </div>
+                        <div class="sub-featurette text-center col-md-offset-2 col-md-5" id="diverging">
+                        <div class="hidden-md hidden-lg">
+                            <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
+                                <span class="text-muted">use more than three colors, or pick colors that are close in hue</span>
+                            </h4>
+                            <p>In order for this pop-out effect to work, the colors on the scale need to be distinct. Generally, stick to using white as your "center" color, and two unique "dark" colors for your endpoints on the scale</p>
+                            </div>
+                            <svg id="dont-diverging" width='500' height="500">
+                            <div class="hidden-xs hidden-sm">
+                            <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
+                                <span class="text-muted">use more than three colors, or pick colors that are close in hue</span>
+                            </h4>
+                            <p>In order for this pop-out effect to work, the colors on the scale need to be distinct. Generally, stick to using white as your "center" color, and two unique "dark" colors for your endpoints on the scale</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="featurette-divider">
+
+                <!-- Footer -->
+                <footer>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p>Developed for Special Topics: Information Visualization at Northeastern University, 2016</p>
+                        </div>
+                    </div>
+                </footer>
+
+            </div>
+            <!-- /.container -->
+
+            <!-- jQuery -->
+            <script   src="http://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+            <!-- Bootstrap Core JavaScript -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+            <!-- My Javascript --> 
+            <script src=""
+
+        </body>
+
+        </html>
