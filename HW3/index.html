@@ -66,21 +66,21 @@
                     <br>
                     <br>
                     <div class="row">
-                        <div class="sub-featurette col-md-6 text-center" id="categorical">
+                        <div class="sub-featurette col-md-12 text-center" id="categorical">
                             <h4 class="featurette-heading"><strong class="text-green"> Do </strong>
                                 <span class="text-muted">use this color scale when encoding distinct categories</span>
                             </h4>
                             <p>Pick colors that have very different hues, but not much varience in saturation and emphasis. We'll save that attribute of colors to communicate different scales! </p>
-                            <svg class="do-categorical" width='550' height="600">
+                            <svg class="do-categorical" width='1000' height="600">
                         </div>
-                        <div class="sub-featurette text-center col-md-6" id="categorical">
+                        <div class="sub-featurette text-center col-md-12" id="categorical">
                         <div class="hidden-md hidden-lg">
                             <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
                                 <span class="text-muted">use it when the data has an order</span>
                             </h4>
                             <p>The viewer of your visualization will not precieve the order without much, much closer inspection. The next type of color scale will work much better</p>
                             </div>
-                            <svg class="dont-categorical" width='550' height="500">
+                            <svg class="dont-categorical" width='1000' height="500">
                             <div class="hidden-xs hidden-sm">
                             <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
                                 <span class="text-muted">use it when the data has an order</span>
@@ -103,21 +103,21 @@
                     <br>
                     <br>
                     <div class="row">
-                        <div class="sub-featurette col-md-6 text-center" id="sequential">
+                        <div class="sub-featurette col-md-12 text-center" id="sequential">
                             <h4 class="featurette-heading"><strong class="text-green"> Do </strong>
                                 <span class="text-muted">use this scale when your encoding some kind of scale</span>
                             </h4>
                             <p>For sequential scales, we keep the hue the same, and vary the staturation and luminace. This communicates that the data has a progression</p>
-                            <svg id="do-sequential" width='550' height="600">
+                            <svg id="do-sequential" width='1000' height="600">
                         </div>
-                        <div class="sub-featurette text-center col-md-6" id="sequential">
+                        <div class="sub-featurette text-center col-md-12" id="sequential">
                         <div class="hidden-md hidden-lg">
                             <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
                                 <span class="text-muted">use it when there is no order, or the order isn't important to what you are using</span>
                             </h4>
                             <p>This color scale will catch the viewers eye and can lead them to focus on the progression from light to dark more than what you're actually trying to show</p>
                             </div>
-                            <svg id="dont-sequential" width='550' height="600">
+                            <svg id="dont-sequential" width='1000' height="600">
                             <div class="hidden-xs hidden-sm">
                             <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
                                 <span class="text-muted">use it when there is no order, or the order isn't important to what you are using</span>
@@ -140,21 +140,21 @@
                     <br>
                     <br>
                     <div class="row">
-                        <div class="sub-featurette col-md-6 text-center" id="diverging">
+                        <div class="sub-featurette col-md-12 text-center" id="diverging">
                             <h4 class="featurette-heading"><strong class="text-green"> Do </strong>
                                 <span class="text-muted">to show extremes in the data</span>
                             </h4>
                             <p>Like the sequential scale, this scale shows an order, but it also brings a pop-out effect to the data that is far away from your center point </p>
-                            <svg id="do-diverging" width='550' height="600">
+                            <svg id="do-diverging" width='1000' height="600">
                         </div>
-                        <div class="sub-featurette text-center col-md-6" id="diverging">
+                        <div class="sub-featurette text-center col-md-12" id="diverging">
                         <div class="hidden-md hidden-lg">
                             <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
                                 <span class="text-muted">use more than three colors, or pick colors that are close in hue</span>
                             </h4>
                             <p>In order for this pop-out effect to work, the colors on the scale need to be distinct. Generally, stick to using white as your "center" color, and two unique "dark" colors for your endpoints on the scale</p>
                             </div>
-                            <svg id="dont-diverging" width='550' height="600">
+                            <svg id="dont-diverging" width='1000' height="600">
                             <div class="hidden-xs hidden-sm">
                             <h4 class="featurette-heading"><strong class="text-red">Don't</strong>
                                 <span class="text-muted">use more than three colors, or pick colors that are close in hue</span>
@@ -191,6 +191,7 @@
             <!-- My Javascript -->
             <script src="script.js"></script>
             <script src="dontcat.js"></script>
+            <script src="dodiverge.js"></script>
 
         </body>
 

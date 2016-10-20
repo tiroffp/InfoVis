@@ -1,4 +1,5 @@
-var doCatSvg = d3.selectAll(".do-categorical"),
+(function() {
+    var doCatSvg = d3.selectAll(".do-categorical"),
 margin = {top: 100, right: 80, bottom: 40, left: 40},
 width = +doCatSvg.attr('width') - margin.left - margin.right,
 height = +doCatSvg.attr('height') - margin.top - margin.bottom;
@@ -7,8 +8,6 @@ var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
 y = d3.scaleLinear().rangeRound([height, 0]);
         //Color scale for Do graphic
         colorDo = d3.scaleOrdinal(d3.schemeCategory10).domain(['Executive Board Member','Chairman','General Member']);
-        //Color scale for Don't graphic
-        colorDont = d3.scaleOrdinal(d3.schemeCategory10).domain([' 3 years', ' 2 years', ' 1 year', ' < 1 year']);
 
         var g = doCatSvg.append('g')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -43,7 +42,7 @@ function dataLoaded(data) {
         .enter()
         .append("rect")
         .attr("class", "rectangle")
-            .style("fill", function() { // Add the colours dynamically
+            .style("fill", function() {// Add the colours dynamically
                 return d.color = colorDo(d.key); })
             .style("stroke", "#000")
             .attr("class", 'tag'+d.key.replace(/\s+/g, '')) // assign ID
@@ -120,3 +119,4 @@ function dataLoaded(data) {
     .text('Number of Events Attended');
 }
 d3.csv('Attendance.csv', parse, dataLoaded);
+})();

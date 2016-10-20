@@ -1,12 +1,12 @@
 (function () {
-    var dontCatSvg = d3.selectAll(".dont-categorical"),
+    var dontCatSvg = d3.select("#do-diverging"),
         margin = {top: 50, right: 80, bottom: 40, left: 40},
         width = +dontCatSvg.attr('width') - margin.left - margin.right,
         height = +dontCatSvg.attr('height') - margin.top - margin.bottom;
 
 var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height, 0]);
-        color = d3.scaleOrdinal(d3.schemeCategory10).domain([' 3 years', ' 2 years', ' 1 year', ' < 1 year']);//.range(['#000', '#888','#0FF','#FFF']);
+       colorDontDiverge = d3.scaleLinear().range(['red','white', 'grey']).domain([0,9,11]);
 
 var g = dontCatSvg.append('g')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -74,12 +74,12 @@ g.selectAll('.bar')
         .attr('y', function(d) {return y(d['TOTAL']); })
         .attr('width', x.bandwidth())
         .attr('height', function(d) {return height - y(d['TOTAL'])})
-        .style('fill', function(d) { return color(d['Years in Club'])})
+        .style('fill', function(d) { console.log(d['TOTAL'],colorDontDiverge(d['TOTAL'])); return colorDontDiverge(d['TOTAL'])})
         .style('stroke', 'black');
 
     // legend
     g.selectAll('.legend')
-        .data(color.domain())
+        .data(colorDontDiverge.domain())
         .enter()
         .append('g')
         .attr('class', 'legend')
@@ -88,7 +88,7 @@ g.selectAll('.bar')
         .attr('y','0')
         .attr('width', legendRectSize)
         .attr('height', legendRectSize)
-        .style('fill', color)
+        .style('fill', colorDontDiverge)
         .attr('transform', function(d,i) { return 'translate(0,' + (i * (legendRectSize + legendSpaceing)) + ')'})
         .style('stroke', 'black');
 
