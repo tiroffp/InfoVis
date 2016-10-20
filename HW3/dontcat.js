@@ -3,8 +3,7 @@
         margin = {top: 50, right: 80, bottom: 40, left: 40},
         width = +dontCatSvg.attr('width') - margin.left - margin.right,
         height = +dontCatSvg.attr('height') - margin.top - margin.bottom;
-
-var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+var x = d3.scaleBand().rangeRound([0, width]),
         y = d3.scaleLinear().rangeRound([height, 0]);
         color = d3.scaleOrdinal(d3.schemeCategory10).domain([' 3 years', ' 2 years', ' 1 year', ' < 1 year']);//.range(['#000', '#888','#0FF','#FFF']);
 
@@ -25,7 +24,7 @@ function dataLoaded(data) {
 
     //set x domain to be total number of students in the array
     x.domain(data.map(function(d) {return d['Student ID number'];}));
-    y.domain([0,11])
+    y.domain([0,12])
 
     g.append("text")
         .attr('x', 0)
@@ -39,15 +38,21 @@ function dataLoaded(data) {
     g.append("g")
         .attr('class', 'axis axis--x')
         .attr('transform', 'translate(0,' + height + ')')
-        .call(d3.axisBottom(x).tickFormat(""))
-        .append('text')
-        .style('fill', 'grey')
-        .style('font-size', '12px')
-        .style('font-family', 'Sans-Serif')
-        .attr('x', width/2)
-        .attr('y', 0 + (margin.bottom/2))
-        .attr('text-anchor', 'middle')
-        .text('Student (ID number)');
+        .call(d3.axisBottom(x))
+       .selectAll('text')
+    .attr("transform", function() {return "translate(-12,6)rotate(-65)";})
+    .style('font-size', '8px')
+    .style('text-anchor','end');
+
+    g.append('text')
+    .attr('class', 'label')
+    .style('fill', 'grey')
+    .style('font-size', '12px')
+    .style('font-family', 'Sans-Serif')
+    .attr('x', width/2)
+    .attr('y', 0 + height + (margin.bottom/2) + 12 )
+    .style('text-anchor', 'middle')
+    .text('Student (ID number)');
 
 
     // y axis group

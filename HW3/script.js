@@ -4,7 +4,7 @@ margin = {top: 100, right: 80, bottom: 40, left: 40},
 width = +doCatSvg.attr('width') - margin.left - margin.right,
 height = +doCatSvg.attr('height') - margin.top - margin.bottom;
 
-var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+var x = d3.scaleBand().rangeRound([0, width]),
 y = d3.scaleLinear().rangeRound([height, 0]);
         //Color scale for Do graphic
         colorDo = d3.scaleOrdinal(d3.schemeCategory10).domain(['Executive Board Member','Chairman','General Member']);
@@ -29,12 +29,12 @@ function dataLoaded(data) {
     .key(function(d) {return d['Position'];})
     .entries(data);
 
-    legendSpace = doCatSvg.attr('width')/dataNest.length;
+    legendSpace = (width + margin.left)/dataNest.length;
 
     //set x domain to be total number of students in the array
     x.domain(data.map(function(d) {
         return d['Student ID number'];}));
-    y.domain([0,11])
+    y.domain([0,12])
 
     dataNest.forEach(function(d,i) {
         g.selectAll('.bar')
@@ -79,7 +79,7 @@ function dataLoaded(data) {
     .style('fill', 'grey')
     .style('font-size', '24px')
     .style('font-family', 'Sans-Serif')
-    .text('Attendance Count of Members by Position Level');
+    .text('Attendance Count of Members by Level');
 
     g.append("text")
     .attr('x', 0 - margin.left)
@@ -93,14 +93,20 @@ function dataLoaded(data) {
     g.append("g")
     .attr('class', 'axis axis--x')
     .attr('transform', 'translate(0,' + height + ')')
-    .call(d3.axisBottom(x).tickFormat(""))
-    .append('text')
+    .call(d3.axisBottom(x))
+    .selectAll('text')
+    .attr("transform", function() {return "translate(-12,6)rotate(-65)";})
+    .style('font-size', '8px')
+    .style('text-anchor','end');
+
+    g.append('text')
+    .attr('class', 'label')
     .style('fill', 'grey')
     .style('font-size', '12px')
     .style('font-family', 'Sans-Serif')
     .attr('x', width/2)
-    .attr('y', 0 + (margin.bottom/2))
-    .attr('text-anchor', 'middle')
+    .attr('y', 0 + height + (margin.bottom/2) + 12 )
+    .style('text-anchor', 'middle')
     .text('Student (ID number)');
 
 
