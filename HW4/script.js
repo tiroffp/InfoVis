@@ -1,12 +1,15 @@
     // Define domElement and sourceFile
-    var domElement = "#timeline";
-    var sourceFile = "GOTDeathsReduced.csv";
+    var timelineElement = "#timeline";
+    var bookElement = "#bookchart";
+    var lifespanElement = '#lifespan'
+    var sourceFile = "GOTDeaths.csv";
 
     function parseData(row){
         row['start'] = calcChapterNumber(row['Book of Introduction Number'],row['Intro Chapter']);
         row['end'] = calcChapterNumber(row['Book of Death Number'],row['Death Chapter']);
         row['lifespan'] = row['end'] - row['start']
         row['label'] = row['Name'];
+        row['selected'] = false;
         return row;
     }
 
@@ -35,17 +38,17 @@
     // Read in the data and construct the timeline
     d3.csv(sourceFile, parseData, function(dataset) {
 
-        var main_timeline = timeline(domElement)
+        var main_timeline = timeline(timelineElement)
 
         main_timeline
         .data(dataset)
-        .band("mainBand", 0.82)
-        .band("naviBand", 0.08)
-        .xAxis("mainBand")
-        .tooltips("mainBand")
-        .xAxis("naviBand")
-        .labels("mainBand")
-        .labels("naviBand")
-        .brush("mainBand", ["naviBand"])
+        .band("mainTimeline")
+        .xAxis("mainTimeline")
+        .tooltips("mainTimeline")
+        .brush("mainTimeline")
         .redraw();
+
+        var book_graph = bookshistogram(bookElement, main_timeline.getdata().items.map(parseData));
+
+        var lifespan_graph = lifespan(lifespanElement, main_timeline.getdata().items.map(parseData));
     });
