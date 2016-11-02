@@ -9,10 +9,10 @@ function timeline(domElement) {
 
     // chart geometry
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
-        outerWidth = 960,
-        outerHeight = 2500,
-        width = outerWidth - margin.left - margin.right,
-        height = outerHeight - margin.top - margin.bottom;
+    outerWidth = 960,
+    outerHeight = 250,
+    width = outerWidth - margin.left - margin.right,
+    height = outerHeight - margin.top - margin.bottom;
 
     // global timeline variables
     var timeline = {},   // The timeline
@@ -22,30 +22,31 @@ function timeline(domElement) {
         bands = {},      // Registry for all the bands in the timeline
         bandY = 0,       // Y-Position of the next band
         bandNum = 0;     // Count of bands for ids
+        trackCount = 0; // get the number of tracks on the main chart
 
     // Create svg element
     var svg = d3.select(domElement).append("svg")
-        .attr("class", "svg")
-        .attr("id", "svg")
-        .attr("width", outerWidth)
-        .attr("height", outerHeight)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top +  ")");
+    .attr("class", "svg")
+    .attr("id", "svg")
+    .attr("width", outerWidth)
+    .attr("height", outerHeight)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top +  ")");
 
     svg.append("clipPath")
-        .attr("id", "chart-area")
-        .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+    .attr("id", "chart-area")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
 
     var chart = svg.append("g")
-            .attr("class", "chart")
-            .attr("clip-path", "url(#chart-area)" );
+    .attr("class", "chart")
+    .attr("clip-path", "url(#chart-area)" );
 
     var tooltip = d3.select("body")
-        .append("div")
-        .attr("class", "tooltip")
-        .style("visibility", "visible");
+    .append("div")
+    .attr("class", "tooltip")
+    .style("visibility", "visible");
 
     //--------------------------------------------------------------------------
     //
@@ -55,9 +56,8 @@ function timeline(domElement) {
     timeline.data = function(items) {
 
         var today = new Date(),
-            tracks = [],
-            yearMillis = 31622400000,
-            instantOffset = 100 * yearMillis;
+        tracks = [],
+        yearMillis = 31622400000;
 
         data.items = items;
 
@@ -112,6 +112,7 @@ function timeline(domElement) {
                     item.track = track;
                     tracks[track] = item.start;
                 });
+                return tracks.length;
             }
             function sortForward() {
                 // younger items end deeper
@@ -122,6 +123,7 @@ function timeline(domElement) {
                     item.track = track;
                     tracks[track] = item.end;
                 });
+                return tracks.length;
             }
 
             if (sortOrder === "ascending")
@@ -130,25 +132,16 @@ function timeline(domElement) {
                 data.items.sort(compareDescending);
 
             if (timeOrder === "forward")
-                sortForward();
+                trackCount = sortForward();
             else
-                sortBackward();
+                trackCount = sortBackward();
         }
 
         // Convert yearStrings into dates
         data.items.forEach(function (item){
             item.start = parseDate(item.start);
-            if (item.end == "") {
-                //console.log("1 item.start: " + item.start);
-                //console.log("2 item.end: " + item.end);
-                item.end = new Date(item.start.getTime() + instantOffset);
-                //console.log("3 item.end: " + item.end);
-                item.instant = true;
-            } else {
                 //console.log("4 item.end: " + item.end);
                 item.end = parseDate(item.end);
-                item.instant = false;
-            }
             // The timeline never reaches into the future.
             // This is an arbitrary decision.
             // Comment out, if dates in the future should be allowed.
@@ -187,53 +180,49 @@ function timeline(domElement) {
         band.trackHeight = Math.min((band.h - band.trackOffset) / data.nTracks, 20);
         band.itemHeight = band.trackHeight * 0.8,
         band.parts = [],
-        band.instantWidth = 100; // arbitray value
 
         band.xScale = d3.time.scale()
-            .domain([data.minDate, data.maxDate])
-            .range([0, band.w]);
+        .domain([data.minDate, data.maxDate])
+        .range([0, band.w]);
 
-        band.yScale = function (track) {
-            return band.trackOffset + track * band.trackHeight;
-        };
+        var tracks = [];
+
+        for (var i = 1; i <= trackCount; i++) {
+            tracks.push(i);
+        }
+        band.yScale = d3.scale.ordinal().domain(tracks).rangeBands([0, band.h]);
+        band.yScaleinvert = function(pixel) {
+            for(j=0; pixel > 0 + band.yScale.rangeBand() * j; j++) {}
+                return band.yScale.domain()[j];
+        }
 
         band.g = chart.append("g")
-            .attr("id", band.id)
-            .attr("transform", "translate(0," + band.y +  ")");
+        .attr("id", band.id)
+        .attr("transform", "translate(0," + band.y +  ")");
 
         band.g.append("rect")
-            .attr("class", "band")
-            .attr("width", band.w)
-            .attr("height", band.h);
+        .attr("class", "band")
+        .attr("width", band.w)
+        .attr("height", band.h);
 
         // Items
         var items = band.g.selectAll("g")
-            .data(data.items)
-            .enter().append("svg")
-            .attr("y", function (d) { return band.yScale(d.track); })
-            .attr("height", band.itemHeight)
-            .attr("class", function (d) { return d.instant ? "part instant" : "part interval";});
+        .data(data.items)
+        .enter().append("svg")
+        .attr("y", function (d) { return band.yScale(d.track); })
+        .attr("height", band.itemHeight)
+        .attr("pointer-events", "all")
+        .attr("class", function(d,i){return d.selected ? "selected interval" : "interval";});
 
         var intervals = d3.select("#band" + bandNum).selectAll(".interval");
         intervals.append("rect")
-            .attr("width", "100%")
-            .attr("height", "100%");
+        .attr("width", "100%")
+        .attr("height", "100%");
         intervals.append("text")
-            .attr("class", "intervalLabel")
-            .attr("x", 1)
-            .attr("y", 10)
-            .text(function (d) { return d.label; });
-
-        var instants = d3.select("#band" + bandNum).selectAll(".instant");
-        instants.append("circle")
-            .attr("cx", band.itemHeight / 2)
-            .attr("cy", band.itemHeight / 2)
-            .attr("r", 5);
-        instants.append("text")
-            .attr("class", "instantLabel")
-            .attr("x", 15)
-            .attr("y", 10)
-            .text(function (d) { return d.label; });
+        .attr("class", "intervalLabel")
+        .attr("x", 1)
+        .attr("y", 10)
+        .text(function (d) { return d.label; });
 
         band.addActions = function(actions) {
             // actions - array: [[trigger, function], ...]
@@ -243,11 +232,13 @@ function timeline(domElement) {
         };
 
         band.redraw = function () {
+            console.log(items)
             items
-                .attr("x", function (d) { return band.xScale(d.start);})
-                .attr("width", function (d) {
-                    return band.xScale(d.end) - band.xScale(d.start); });
-            band.parts.forEach(function(part) { part.redraw(); })
+            .attr("x", function (d) { return band.xScale(d.start);})
+            .attr("width", function (d) {
+                return band.xScale(d.end) - band.xScale(d.start); })
+            .attr("class", function(d,i){return d.selected ? "selected interval" : "interval";});;
+            band.parts.forEach(function(part) { part.redraw(); });
         };
 
         bands[bandName] = band;
@@ -267,57 +258,58 @@ function timeline(domElement) {
     timeline.labels = function (bandName) {
 
         var band = bands[bandName],
-            labelWidth = 46,
-            labelHeight = 20,
-            labelTop = band.y + band.h - 10,
-            y = band.y + band.h + 1,
-            yText = 15;
+        labelWidth = 46,
+        labelHeight = 20,
+        labelTop = band.y + band.h - 10,
+        y = band.y + band.h + 1,
+        yText = 15;
 
         var labelDefs = [
-                ["start", "bandMinMaxLabel", 0, 4,
-                    function(min, max) { return toYear(min); },
-                    "Start of the selected interval", band.x + 30, labelTop],
-                ["end", "bandMinMaxLabel", band.w - labelWidth, band.w - 4,
-                    function(min, max) { return toYear(max); },
-                    "End of the selected interval", band.x + band.w - 152, labelTop],
-                ["middle", "bandMidLabel", (band.w - labelWidth) / 2, band.w / 2,
-                    function(min, max) { return max.getUTCFullYear() - min.getUTCFullYear(); },
-                    "Length of the selected interval", band.x + band.w / 2 - 75, labelTop]
-            ];
+        ["start", "bandMinMaxLabel", 0, 4,
+        function(min, max) { return toYear(min); },
+        "Start of the selected interval", band.x + 30, labelTop],
+        ["end", "bandMinMaxLabel", band.w - labelWidth, band.w - 4,
+        function(min, max) { return toYear(max); },
+        "End of the selected interval", band.x + band.w - 152, labelTop],
+        ["middle", "bandMidLabel", (band.w - labelWidth) / 2, band.w / 2,
+        function(min, max) { return max.getUTCFullYear() - min.getUTCFullYear(); },
+        "Length of the selected interval", band.x + band.w / 2 - 75, labelTop]
+        ];
 
         var bandLabels = chart.append("g")
-            .attr("id", bandName + "Labels")
-            .attr("transform", "translate(0," + (band.y + band.h + 1) +  ")")
-            .selectAll("#" + bandName + "Labels")
-            .data(labelDefs)
-            .enter().append("g")
-            .on("mouseover", function(d) {
-                tooltip.html(d[5])
-                    .style("top", d[7] + "px")
-                    .style("left", d[6] + "px")
-                    .style("visibility", "visible");
-                })
-            .on("mouseout", function(){
-                tooltip.style("visibility", "hidden");
-            });
+        .attr("id", bandName + "Labels")
+        .attr("transform", "translate(0," + (band.y + band.h + 1) +  ")")
+        .selectAll("#" + bandName + "Labels")
+        .data(labelDefs)
+        .enter().append("g")
+        .attr("pointer-events", "all")
+        .on("mouseover", function(d) {
+            tooltip.html(d[5])
+            .style("top", d[7] + "px")
+            .style("left", d[6] + "px")
+            .style("visibility", "visible");
+        })
+        .on("mouseout", function(){
+            tooltip.style("visibility", "hidden");
+        });
 
         bandLabels.append("rect")
-            .attr("class", "bandLabel")
-            .attr("x", function(d) { return d[2];})
-            .attr("width", labelWidth)
-            .attr("height", labelHeight)
-            .style("opacity", 1);
+        .attr("class", "bandLabel")
+        .attr("x", function(d) { return d[2];})
+        .attr("width", labelWidth)
+        .attr("height", labelHeight)
+        .style("opacity", 1);
 
         var labels = bandLabels.append("text")
-            .attr("class", function(d) { return d[1];})
-            .attr("id", function(d) { return d[0];})
-            .attr("x", function(d) { return d[3];})
-            .attr("y", yText)
-            .attr("text-anchor", function(d) { return d[0];});
+        .attr("class", function(d) { return d[1];})
+        .attr("id", function(d) { return d[0];})
+        .attr("x", function(d) { return d[3];})
+        .attr("y", yText)
+        .attr("text-anchor", function(d) { return d[0];});
 
         labels.redraw = function () {
             var min = band.xScale.domain()[0],
-                max = band.xScale.domain()[1];
+            max = band.xScale.domain()[1];
 
             labels.text(function (d) { return d[4](min, max); })
         };
@@ -341,11 +333,11 @@ function timeline(domElement) {
             // trigger, function
             ["mouseover", showTooltip],
             ["mouseout", hideTooltip]
-        ]);
+            ]);
 
         function getHtml(element, d) {
             var html;
-            if (element.attr("class") == "part interval") {
+            if (element.attr("class") == "interval") {
                 html = d.label;
                 html = html +"<br>" + 'Introduced In Chapter ' + d['Intro Chapter']  + ' in ' + d['Book of Introduction'];
                 html = html +" <br>" + 'Died In Chapter ' + d['Death Chapter'] + ' in ' + d['Book of Death'];
@@ -358,17 +350,17 @@ function timeline(domElement) {
 
         function showTooltip (d,event) {
             var x = d3.event.layerX < band.x + band.w / 2
-                    ? d3.event.layerX + 10
-                    : d3.event.layerX - 10,
-                y = d3.event.layerY < band.y + band.h / 2
-                    ? d3.event.layerY + 30
-                    : d3.event.layerY - 30;
+            ? d3.event.layerX + 10
+            : d3.event.layerX - 10,
+            y = d3.event.layerY < band.y + band.h / 2
+            ? d3.event.layerY + 30
+            : d3.event.layerY - 30;
 
             tooltip
-                .html(getHtml(d3.select(this), d))
-                .style("top", y + "px")
-                .style("left", x + "px")
-                .style("visibility", "visible");
+            .html(getHtml(d3.select(this), d))
+            .style("top", y + "px")
+            .style("left", x + "px")
+            .style("visibility", "visible");
         }
 
         function hideTooltip () {
@@ -388,14 +380,14 @@ function timeline(domElement) {
         var band = bands[bandName];
 
         var axis = d3.svg.axis()
-            .scale(band.xScale)
-            .orient(orientation || "bottom")
-            .tickSize(6, 0)
-            .tickFormat(function (d) { return toYear(d); });
+        .scale(band.xScale)
+        .orient(orientation || "bottom")
+        .tickSize(6, 0)
+        .tickFormat(function (d) { return toYear(d); });
 
         var xAxis = chart.append("g")
-            .attr("class", "axis")
-            .attr("transform", "translate(0," + (band.y + band.h)  + ")");
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + (band.y + band.h)  + ")");
 
         xAxis.redraw = function () {
             xAxis.call(axis);
@@ -414,31 +406,42 @@ function timeline(domElement) {
 
     timeline.brush = function (bandName, targetNames) {
 
-        var band = bands[bandName];
+        var band = bands[bandName], domainX, domainY;
 
         var brush = d3.svg.brush()
-            .x(band.xScale.range([0, band.w]))
-            .on("brush", function() {
-                var domain = brush.empty()
-                    ? band.xScale.domain()
-                    : brush.extent();
-                targetNames.forEach(function(d) {
-                    bands[d].xScale.domain(domain);
-                    bands[d].redraw();
-                });
+        .x(band.xScale.range([0, band.w]))
+        .y(band.yScale)
+        .on("brush", function() {
+            if (brush.empty()) {
+                domainX = band.xScale.domain();
+                domainY = band.yScale.domain();
+            } else {
+                domainX = [brush.extent()[0][0],brush.extent()[1][0]];
+                domainY = [brush.extent()[0][1],brush.extent()[1][1]]
+            }
+            data.items.forEach(function(d, i){
+                    var crossLeftBound = d['start'] < domainX[0] & d['end'] > domainX[0];
+                    var crossRightBound = d['start'] < domainX[1] & d['end'] > domainX[1];
+                    var contained = d['start'] > domainX[0] & d['end'] < domainX[1];
+                    var vertBound = band.yScale(d['track']) >= domainY[0] & band.yScale(d['track']) <= domainY[1]
+                    if((crossLeftBound || contained || crossRightBound) & vertBound) {
+                        d.selected = true
+                    } else {
+                        d.selected = false
+                    }
             });
+        });
 
-        var xBrush = band.g.append("svg")
-            .attr("class", "x brush")
-            .call(brush);
+        var brushRect = band.g.append("svg")
+        .attr("class", "brush")
+        .call(brush);
 
-        xBrush.selectAll("rect")
-            .attr("y", 4)
-            .attr("height", band.h - 4);
+        brushRect.selectAll("rect")
+        .attr("y", 4)
+        .attr("height", band.h - 4);
 
         return timeline;
     };
-
     //----------------------------------------------------------------------
     //
     // redraw
@@ -468,8 +471,8 @@ function timeline(domElement) {
         // these years require a special treatment.
 
         var format = d3.time.format("%Y"),
-            date,
-            year;
+        date,
+        year;
 
         date = format.parse(dateString);
         if (date !== null) return date;
@@ -485,7 +488,7 @@ function timeline(domElement) {
         if (year < 0 || year > 99) { // 'Normal' dates
             date = new Date(year, 6, 1);
         } else if (year == 0) { // Year 0 is '1 BC'
-            date = new Date (-1, 6, 1);
+        date = new Date (-1, 6, 1);
         } else { // Create arbitrary year and then set the correct year
             // For full years, I chose to set the date to mid year (1st of July).
             date = new Date(year, 6, 1);
@@ -508,3 +511,5 @@ function timeline(domElement) {
 
     return timeline;
 }
+
+// create historgram

@@ -61,7 +61,7 @@
     fill: #AAFFFF;
     stroke-width: 6;
     cursor : default;
-    pointer-events: true;
+    pointer-events: all;
 }
 
 .instant {
@@ -85,7 +85,7 @@
 
 .item {
     cursor : default;
-    pointer-events: auto;
+    pointer-events: all;
 }
 
 .svg {
@@ -105,7 +105,10 @@
     border: 1px solid;
     padding: 4px;
     shape-rendering: crispEdges;
-    pointer-events: none;
+    pointer-events: all;
 }
 
+.selected {
+    fill:red;
+}
 

@@ -1,6 +1,6 @@
     // Define domElement and sourceFile
     var domElement = "#timeline";
-    var sourceFile = "GOTDeaths.csv";
+    var sourceFile = "GOTDeathsReduced.csv";
 
     function parseData(row){
         row['start'] = calcChapterNumber(row['Book of Introduction Number'],row['Intro Chapter']);
@@ -35,7 +35,9 @@
     // Read in the data and construct the timeline
     d3.csv(sourceFile, parseData, function(dataset) {
 
-        timeline(domElement)
+        var main_timeline = timeline(domElement)
+
+        main_timeline
         .data(dataset)
         .band("mainBand", 0.82)
         .band("naviBand", 0.08)
@@ -44,7 +46,6 @@
         .xAxis("naviBand")
         .labels("mainBand")
         .labels("naviBand")
-        .brush("naviBand", ["mainBand"])
+        .brush("mainBand", ["naviBand"])
         .redraw();
-
     });
