@@ -20,27 +20,17 @@ var svg = d3.select(domElement).append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform", 
+    .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-// d3.csv("bar-otherItems.csv", function(error, otherItems) {
-var data =[
-{'book': 'A Game Of Thrones', 'deathcount': 0},
-{'book':  'A Clash Of Kings', 'deathcount': 0},
-{'book':  'A Storm Of Swords', 'deathcount': 0},
-{'book':  'A Feast For Crows', 'deathcount': 0},
-{'book':  'A Dance With Dragons', 'deathcount': 0}
-];
-    inputdata.forEach(function(d) {
-        for (var i=0; i < data.length; i++) {
-            if (data[i].book === d['Book of Death']) {
-                var datum = data[i];
-                break;
-            }
-    }
-        datum.deathcount += 1;
-    });
-    
+var totals ={
+'A Game Of Thrones': 0,
+'A Clash Of Kings': 0,
+'A Storm Of Swords': 0,
+'A Feast For Crows': 0,
+'A Dance With Dragons': 0
+};
+
   x.domain(['A Game Of Thrones', 'A Clash Of Kings', 'A Storm Of Swords', 'A Feast For Crows', 'A Dance With Dragons']);
   y.domain([0, 100]);
 
@@ -48,6 +38,13 @@ var data =[
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis)
+      .append("text")
+      .attr("y", margin.bottom/2)
+      .attr("dy", ".71em")
+      .attr('x', width/2)
+      .style('font-size', '24px')
+      .style("text-anchor", "middle")
+      .text("Name of Book");
 
   svg.append("g")
       .attr("class", "y axis")
@@ -60,14 +57,16 @@ var data =[
       .text("Number of Deaths");
 
   svg.selectAll("bar")
-      .data(data)
+      .data(inputdata)
     .enter().append("rect")
-      .style("fill", "steelblue")
-      .attr("x", function(d) { return x(d.book); })
+      .attr("x", function(d) { return x(d['Book of Death']); })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.deathcount); })
-      .attr("height", function(d) {return height - y(d.deathcount);});
-      // .attr('class', function(d) {return d.selected ? 'selected'});
+      .attr("y", function(d) {
+        var count = totals[d['Book of Death']] + 1
+        totals[d['Book of Death']] = count;
+        return height -   count  - 2;})
+      .attr("height", function(d) {return height - y(1);})
+      .attr('class', function(d) {return d.NameForClass});
 
 // });
 }

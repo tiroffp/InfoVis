@@ -10,6 +10,7 @@
         row['lifespan'] = row['end'] - row['start']
         row['label'] = row['Name'];
         row['selected'] = false;
+        row.NameForClass = row.Name.replace(/\s+/g, '').replace(/'/g, 'A')
         return row;
     }
 

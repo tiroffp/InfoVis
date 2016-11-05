@@ -108,9 +108,7 @@
     pointer-events: all;
 }
 
-.selected {
-    fill:red;
-}
+
 
     .axis {
       font: 10px sans-serif;
@@ -123,8 +121,13 @@
       shape-rendering: crispEdges;
     }
 
+#bookchart rect {
+  fill: #AAFFFF;
+  shape-rendering: crispEdges;
+}
+
     .bar rect {
-  fill: steelblue;
+  fill: #AAFFFF;
   shape-rendering: crispEdges;
 }
 .bar text {
@@ -134,4 +137,8 @@
   fill: none;
   stroke: #000;
   shape-rendering: crispEdges;
+}
+
+.selected {
+    fill:red !important;
 }
