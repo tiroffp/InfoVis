@@ -1,6 +1,4 @@
 function lifespan(domElement, data){
-// Generate a Bates distribution of 10 random variables.
-var values = data.map(function(d,i){return d['lifespan']});
 // A formatter for counts.
 var formatCount = d3.format(",.0f");
 var margin = {top: 10, right: 30, bottom: 50, left: 50},
@@ -10,11 +8,12 @@ var x = d3.scale.linear()
     .domain([0, 350])
     .range([0, width]);
 // Generate a histogram using twenty uniformly-spaced bins.
-var data = d3.layout.histogram()
-    .bins(x.ticks(20))
-    (values);
+var lifespans = {}
+data.forEach(function (d){
+    var lifespan = Math.floor(d['lifespan']/20) * 20
+    d.lifespan  = lifespan
+})
 
-    console.log(data)
 var y = d3.scale.linear()
     .domain([0,140])
     .range([height, 0]);
@@ -27,20 +26,30 @@ var y = d3.scale.linear()
 var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom");
-var svg = d3.select("body").append("svg")
+var svg = d3.select(domElement).append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 var bar = svg.selectAll(".bar")
     .data(data)
-  .enter().append("g")
-    .attr("class", "bar")
-    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
-bar.append("rect")
-    .attr("x", 1)
+  .enter()
+  .append("rect")
+    .attr("x", function (d) {return x(d.lifespan)})
+    .attr("y",function(d) {
+        var total;
+        if (isNaN(lifespans[d.lifespan])){
+            total = 1;
+        } else {
+            total = lifespans[d.lifespan] + 1;
+        }
+        lifespans[d.lifespan] = total;
+        return y(total)
+    })
     .attr("width", 45)
-    .attr("height", function(d) { return height - y(d.y); });
+    .attr("height", function(d) { return height - y(1); })
+    .attr('class', function(d){return d.NameForClass});
+
 svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
@@ -63,6 +72,6 @@ svg.append("g")
       .attr('x', -height/2)
       .style("text-anchor", "middle")
       .style('font-size', '16px')
-      .text("Number of Charact");
+      .text("Number of Characters");
 
 }
