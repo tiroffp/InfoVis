@@ -126,6 +126,11 @@
   shape-rendering: crispEdges;
 }
 
+#lifespan rect {
+  fill: #AAFFFF;
+  shape-rendering: crispEdges;
+}
+
     .bar rect {
   fill: #AAFFFF;
   shape-rendering: crispEdges;
