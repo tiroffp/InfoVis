@@ -88,8 +88,8 @@ function timeline(domElement) {
 
         calculateTracks(data.items);
         data.nTracks = tracks.length;
-        data.minDate = d3.min(data.items, function (d) { return d.start; });
-        data.maxDate = d3.max(data.items, function (d) { return d.end; });
+        data.minDate = 0;
+        data.maxDate =350;
 
         return timeline;
     };
