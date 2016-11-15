@@ -1,0 +1,9 @@
+EdgeName,Source,Target,Weight
+Edge0,A,C,3
+Edge1,A,E,3
+Edge2,B,F,2
+Edge3,D,F,2
+Edge4,C,F,1
+Edge5,E,F,3
+Edge6,B,C,2
+Edge7,C,D,2
