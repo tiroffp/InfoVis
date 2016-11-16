@@ -105,7 +105,22 @@ var path = svg.append("svg:g").selectAll("path")
 var edge = svg.append("svg:g").selectAll("edge")
 .data(edges)
 .enter().append("svg:path")
-.attr('class', 'edge unmarked');
+.attr('class', 'edge unmarked')
+.attr("id", function(d){return d['edge_index']});
+
+svg.selectAll('.edgeWeight')
+.data(edges)
+.enter()
+.append('text')
+.attr("x", 12)
+.attr('y', 50 )
+.attr("dy", "1em")
+// .attr('dx', '2em')
+.attr('text-anchor', 'middle')
+.append("textPath")
+.attr("xlink:href", function (d) { return '#' + d.edge_index; })
+.attr("startOffset","50%")
+.text(function (d) { return d.edge_weight; });
 
 // define the nodes
 var node = svg.selectAll(".node")
@@ -128,41 +143,42 @@ node.append("text")
 
 // add the curvy lines
 function tick() {
-  path.attr("d", function(d) {
-    if (currStep >= d['id'] && d['action_type'] == 'move') {
-      var dx = d.target.x - d.source.x,
-      dy = d.target.y - d.source.y,
-      dr = Math.sqrt(dx * dx + dy * dy);
-      return "M" +
-      d.source.x + "," +
-      d.source.y + "A" +
-      dr + "," + dr + " 0 0,1 " +
-      d.target.x + "," +
-      d.target.y;
-    } else {
-      return "";
-    }
-  })
-  .attr("style", function(d){
-    if(currStep >= d['id'] && d['action_type'] == 'move') {
-      return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
-    }
-  });
+  updateGraphHelper();
+  // path.attr("d", function(d) {
+  //   if (currStep >= d['id'] && d['action_type'] == 'move') {
+  //     var dx = d.target.x - d.source.x,
+  //     dy = d.target.y - d.source.y,
+  //     dr = Math.sqrt(dx * dx + dy * dy);
+  //     return "M" +
+  //     d.source.x + "," +
+  //     d.source.y + "A" +
+  //     dr + "," + dr + " 0 0,1 " +
+  //     d.target.x + "," +
+  //     d.target.y;
+  //   } else {
+  //     return "";
+  //   }
+  // })
+  // .attr("style", function(d){
+  //   if(currStep >= d['id'] && d['action_type'] == 'move') {
+  //     return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
+  //   }
+  // });
 
-  edge.attr("d", function(d) {
-    var dx = d.target.x - d.source.x,
-    dy = d.target.y - d.source.y,
-    dr = 0;
-    return "M" +
-    d.source.x + "," +
-    d.source.y + "A" +
-    dr + "," + dr + " 0 0,1 " +
-    d.target.x + "," +
-    d.target.y;
-  })
-  .each(setupMarking);
+  // edge.attr("d", function(d) {
+  //   var dx = d.target.x - d.source.x,
+  //   dy = d.target.y - d.source.y,
+  //   dr = 0;
+  //   return "M" +
+  //   d.source.x + "," +
+  //   d.source.y + "A" +
+  //   dr + "," + dr + " 0 0,1 " +
+  //   d.target.x + "," +
+  //   d.target.y;
+  // })
+  // .each(setupMarking);
 
-  renderMarking();
+  // renderMarking();
 
   node
   .attr("transform", function(d) {
@@ -179,6 +195,16 @@ function keydown() {
 
   currStepData = data[currStep + action_offset]
 
+  updateGraphHelper();
+
+  svg.selectAll('.moveText')
+  .attr("x", 12)
+  .attr('y', 50 )
+  .attr("dy", ".35em")
+  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' on edge ' + currStepData['start_node'] + currStepData['end_node']);
+};
+
+function updateGraphHelper() {
   path.attr("d", function(d) {
     if (currStep >= d['id'] && d['action_type'] == 'move') {
       var dx = d.target.x - d.source.x,
@@ -199,6 +225,7 @@ function keydown() {
       return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
     }
   });
+
   edge.attr("d", function(d) {
     var dx = d.target.x - d.source.x,
     dy = d.target.y - d.source.y,
@@ -209,42 +236,31 @@ function keydown() {
     dr + "," + dr + " 0 0,1 " +
     d.target.x + "," +
     d.target.y;
-  }).each(setupMarking);
-
-  renderMarking();
-  svg.selectAll('.moveText')
-  .attr("x", 12)
-  .attr('y', 50 )
-  .attr("dy", ".35em")
-  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' on edge ' + currStepData['start_node'] + currStepData['end_node']);
-};
-
-function setupMarking(d) {
-  if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
-    markedEdges[d.edge_index] = [d3.select(this),currStep]
-    if (unmarkedEdges[d.edge_index]) {
-      delete unmarkedEdges[d.edge_index];
+  }).each(function(d) {
+    if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
+      markedEdges[d.edge_index] = [d3.select(this),currStep]
+      if (unmarkedEdges[d.edge_index]) {
+        delete unmarkedEdges[d.edge_index];
+      }
+    } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
+      unmarkedEdges[d.edge_index] = [d3.select(this),currStep]
+      if (markedEdges[d.edge_index]) {
+        delete markedEdges[d.edge_index];
+      }
     }
-  } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
-    unmarkedEdges[d.edge_index] = [d3.select(this),currStep]
-    if (markedEdges[d.edge_index]) {
-      delete markedEdges[d.edge_index];
-    }
-  }
-}
+  });
 
-function renderMarking() {
-  for (var d in markedEdges) {
-    line = markedEdges[d]
+  for (var markedEdge in markedEdges) {
+    line = markedEdges[markedEdge]
     if(line[1] > currStep) {
-      delete markedEdges[d]
+      delete markedEdges[markedEdge]
       line[0].attr('class', 'edge unmarked');
     } else {
       line[0].attr('class', 'edge marked');
     }
   }
-  for (var d in unmarkedEdges) {
-    d = unmarkedEdges[d][0]
+  for (var unmarkedEdge in unmarkedEdges) {
+    d = unmarkedEdges[unmarkedEdge][0]
     d.attr('class', 'edge unmarked');
   }
 }
