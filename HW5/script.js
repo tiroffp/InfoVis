@@ -20,24 +20,33 @@ function loadData(error, data) {
 
 // Compute the distinct nodes from the links.
 data.forEach(function(d) {
-  if (d['id'] == "") {
+  if (d['id'] == 0) {
+    d.source = nodes[d.source] ||
+    (nodes[d.source] = {name: d.source});
+    d.target = nodes[d.target] ||
+    (nodes[d.target] = {name: d.target});
+    d.value = +d.value;
     edges.push(d)
   }  else {
-    maxStep = Math.max(d['id'],maxStep)
     d.source = nodes[d.source] ||
     (nodes[d.source] = {name: d.source});
     d.target = nodes[d.target] ||
     (nodes[d.target] = {name: d.target});
     d.value = +d.value;
     links.push(d)
-  }});
+  }
+  maxStep = Math.max(d['id'],maxStep)
+});
+console.log(edges)
+console.log(links)
+console.log(nodes)
 
 var width = 960,
 height = 500;
 
 var force = d3.layout.force()
 .nodes(d3.values(nodes))
-.links(links)
+.links(edges)
 .size([width, height])
 .linkDistance(150)
 .charge(-300)
@@ -49,19 +58,6 @@ var  v = d3.scale.linear().range([0, 100]);
 
 // Scale the range of the data
 v.domain([0, d3.max(links, function(d) { return d.value; })]);
-
-// asign a type per value to encode opacity
-links.forEach(function(link) {
-  if (v(link.value) <= 25) {
-    link.type = "twofive";
-  } else if (v(link.value) <= 50 && v(link.value) > 25) {
-    link.type = "fivezero";
-  } else if (v(link.value) <= 75 && v(link.value) > 50) {
-    link.type = "sevenfive";
-  } else if (v(link.value) <= 100 && v(link.value) > 75) {
-    link.type = "onezerozero";
-  }
-});
 
 d3.select('body').on("keydown", keydown)
 
@@ -81,7 +77,6 @@ svg.append('text')
 .attr("x", 12)
 .attr('y', 50 )
 .attr("dy", ".35em").text('Use the arrows to navigate through the player moves').attr('class','moveText')
-// .text(function(d) { if(d['id'] = =currStep)return 'Move ' + d['id'] + ': ' + d['action_type'] + ' edge ' + d['start_node'] + d['end_node']; });
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
     .data(["end"])      // Different link/path types can be defined here
@@ -98,15 +93,14 @@ svg.append("svg:defs").selectAll("marker")
 
 // add the links and the arrows
 var path = svg.append("svg:g").selectAll("path")
-.data(force.links())
+.data(links)
 .enter().append("svg:path")
 .attr("class", "link")
 .attr("marker-end", "url(#end)");
 
 var edge = svg.append("svg:g").selectAll("edge")
-.data(force.links())
-.enter().append("svg:path")
-.attr("class", "edge");
+.data(edges)
+.enter().append("svg:path");
 
 // define the nodes
 var node = svg.selectAll(".node")
@@ -161,12 +155,13 @@ function tick() {
     d.target.x + "," +
     d.target.y;
   })
-  .attr("style", function(d) {
+  .each(function(d) {
     if(currStep >= d['id'] && d['action_type'] == 'markedge') {
-      return "stroke-dasharray: 5,0; stroke: #333;"
+      console.log(d['id'])
+      d3.select(this).attr('class', 'edge marked');
     } else if(currStep >= d['id'] && d['action_type'] == 'unmarkedge') {
-      return "stroke-dasharray: 5,5; stroke: #AAA;"
-    }})
+      d3.select(this).attr('class', 'edge unmarked');
+    }});
   node
   .attr("transform", function(d) {
     return "translate(" + d.x + "," + d.y + ")"; });
@@ -210,18 +205,21 @@ function keydown() {
     dr + "," + dr + " 0 0,1 " +
     d.target.x + "," +
     d.target.y;
-  }).attr("style", function(d) {
+  }).attr("class", function(d) {
     if(currStep >= d['id'] && d['action_type'] == 'markedge') {
-      return "stroke-dasharray: 5,0; stroke: #333;"
+      console.log(d['id'])
+      return "edge marked"
     } else if(currStep >= d['id'] && d['action_type'] == 'unmarkedge') {
-      return "stroke-dasharray: 5,5; stroke: #AAA;"
+      return "edge unmarked"
+    } else {
+      return "edge unmarked"
     }})
   var currStepData = data[currStep + 7]
   svg.selectAll('.moveText')
-.attr("x", 12)
-.attr('y', 50 )
-.attr("dy", ".35em")
-.text('Move ' + currStep + ': ' + currStepData['action_type'] + ' edge ' + currStepData['start_node'] + currStepData['end_node']);
+  .attr("x", 12)
+  .attr('y', 50 )
+  .attr("dy", ".35em")
+  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' edge ' + currStepData['start_node'] + currStepData['end_node']);
 };
 
 // action to take on mouse click
