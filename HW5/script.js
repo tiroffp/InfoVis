@@ -11,35 +11,38 @@ function parseData(row) {
 }
 
 function loadData(error, data) {
-
- var currStep = 0;
+ var currStep = 1;
  var maxStep = 0;
  var nodes = {};
- var links = []
+ var moves = []
  var edges = []
+ var actions = []
+ var currStepData;
+ var markedEdges = {}
+ var unmarkedEdges = {}
+ var action_offset = 0 //since edge setup and player actions are in same file, add this number to action id to directly access it from data array
+ // might be able to refactor data parsing get rid of this and infer edges from actions
 
-// Compute the distinct nodes from the links.
+// Compute the distinct nodes and edges , seperate moves out from game log.
 data.forEach(function(d) {
+  d.source = nodes[d.source] ||
+  (nodes[d.source] = {name: d.source});
+  d.target = nodes[d.target] ||
+  (nodes[d.target] = {name: d.target});
+  d.value = +d.value;
+
   if (d['id'] == 0) {
-    d.source = nodes[d.source] ||
-    (nodes[d.source] = {name: d.source});
-    d.target = nodes[d.target] ||
-    (nodes[d.target] = {name: d.target});
-    d.value = +d.value;
     edges.push(d)
-  }  else {
-    d.source = nodes[d.source] ||
-    (nodes[d.source] = {name: d.source});
-    d.target = nodes[d.target] ||
-    (nodes[d.target] = {name: d.target});
-    d.value = +d.value;
-    links.push(d)
+    action_offset = action_offset + 1
+  }  else if(d['action_type'] == 'move') {
+    moves.push(d)
+  } else {
+    actions.push(d)
   }
   maxStep = Math.max(d['id'],maxStep)
 });
-console.log(edges)
-console.log(links)
-console.log(nodes)
+action_offset = action_offset - 1;
+currStepData = data[currStep + action_offset]
 
 var width = 960,
 height = 500;
@@ -57,7 +60,7 @@ var force = d3.layout.force()
 var  v = d3.scale.linear().range([0, 100]);
 
 // Scale the range of the data
-v.domain([0, d3.max(links, function(d) { return d.value; })]);
+v.domain([0, d3.max(moves, function(d) { return d.value; })]);
 
 d3.select('body').on("keydown", keydown)
 
@@ -72,8 +75,8 @@ var svg = d3.select("div#chartId")
    .classed("svg-content-responsive", true);
 
 //text of current move
-svg.append('text')
-// .append('text')
+svg
+.append('text')
 .attr("x", 12)
 .attr('y', 50 )
 .attr("dy", ".35em").text('Use the arrows to navigate through the player moves').attr('class','moveText')
@@ -91,16 +94,17 @@ svg.append("svg:defs").selectAll("marker")
   .append("svg:path")
   .attr("d", "M0,-5L10,0L0,5");
 
-// add the links and the arrows
+// add the moves and the arrows
 var path = svg.append("svg:g").selectAll("path")
-.data(links)
+.data(moves)
 .enter().append("svg:path")
 .attr("class", "link")
 .attr("marker-end", "url(#end)");
 
 var edge = svg.append("svg:g").selectAll("edge")
 .data(edges)
-.enter().append("svg:path");
+.enter().append("svg:path")
+.attr('class', 'edge unmarked');
 
 // define the nodes
 var node = svg.selectAll(".node")
@@ -140,7 +144,7 @@ function tick() {
   })
   .attr("style", function(d){
     if(currStep >= d['id'] && d['action_type'] == 'move') {
-      return "opacity: " + Math.round((d['id']/currStep) * 100) + ";"
+      return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
     }
   });
 
@@ -156,12 +160,28 @@ function tick() {
     d.target.y;
   })
   .each(function(d) {
-    if(currStep >= d['id'] && d['action_type'] == 'markedge') {
-      console.log(d['id'])
-      d3.select(this).attr('class', 'edge marked');
-    } else if(currStep >= d['id'] && d['action_type'] == 'unmarkedge') {
-      d3.select(this).attr('class', 'edge unmarked');
-    }});
+    if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
+      markedEdges[d.id] = [d3.select(this), currStep]
+      if (unmarkedEdges[d.id]) {
+        unmarkedEdges[d.id] = null;
+      }
+    } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
+      unmarkedEdges[d.id] = [d3.select(this), currStep]
+      if (markedEdges[d.id]) {
+        markedEdges[d.id] = null;
+      }
+    }
+  });
+
+  for (var d in markedEdges) {
+    d = markedEdges[d][0]
+    d.attr('class', 'edge marked');
+  }
+  for (var d in unmarkedEdges) {
+    d = unmarkedEdges[d][0]
+    d.attr('class', 'edge unmarked');
+  }
+
   node
   .attr("transform", function(d) {
     return "translate(" + d.x + "," + d.y + ")"; });
@@ -174,7 +194,7 @@ function keydown() {
   } else if (d3.event.keyCode == 39) {
     currStep = Math.min(currStep + 1, maxStep)
   }
-  currStepData = data[currStep + 8]
+  currStepData = data[currStep + action_offset]
   path.attr("d", function(d) {
     if (currStep >= d['id'] && d['action_type'] == 'move') {
       var dx = d.target.x - d.source.x,
@@ -205,21 +225,40 @@ function keydown() {
     dr + "," + dr + " 0 0,1 " +
     d.target.x + "," +
     d.target.y;
-  }).attr("class", function(d) {
-    if(currStep >= d['id'] && d['action_type'] == 'markedge') {
-      console.log(d['id'])
-      return "edge marked"
-    } else if(currStep >= d['id'] && d['action_type'] == 'unmarkedge') {
-      return "edge unmarked"
+  }).each(function(d) {
+    if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
+      markedEdges[d.edge_index] = [d3.select(this),currStep]
+      if (unmarkedEdges[d.edge_index]) {
+        delete unmarkedEdges[d.edge_index];
+      }
+    } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
+      unmarkedEdges[d.edge_index] = [d3.select(this),currStep]
+      if (markedEdges[d.edge_index]) {
+        delete markedEdges[d.edge_index];
+      }
+    }
+  });
+  for (var d in markedEdges) {
+    line = markedEdges[d]
+    console.log(line)
+    if(line[1] > currStep) {
+      console.log(line[1])
+      delete markedEdges[d]
+      line[0].attr('class', 'edge unmarked');
     } else {
-      return "edge unmarked"
-    }})
-  var currStepData = data[currStep + 7]
+    line[0].attr('class', 'edge marked');
+  }
+  }
+  for (var d in unmarkedEdges) {
+    d = unmarkedEdges[d][0]
+    d.attr('class', 'edge unmarked');
+  }
+
   svg.selectAll('.moveText')
   .attr("x", 12)
   .attr('y', 50 )
   .attr("dy", ".35em")
-  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' edge ' + currStepData['start_node'] + currStepData['end_node']);
+  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' on edge ' + currStepData['start_node'] + currStepData['end_node']);
 };
 
 // action to take on mouse click
