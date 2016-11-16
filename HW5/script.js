@@ -75,6 +75,13 @@ var svg = d3.select("div#chartId")
    //class to make it responsive
    .classed("svg-content-responsive", true);
 
+//text of current move
+svg.append('text')
+// .append('text')
+.attr("x", 12)
+.attr('y', 50 )
+.attr("dy", ".35em").text('Use the arrows to navigate through the player moves').attr('class','moveText')
+// .text(function(d) { if(d['id'] = =currStep)return 'Move ' + d['id'] + ': ' + d['action_type'] + ' edge ' + d['start_node'] + d['end_node']; });
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
     .data(["end"])      // Different link/path types can be defined here
@@ -155,14 +162,11 @@ function tick() {
     d.target.y;
   })
   .attr("style", function(d) {
-    if(currStep >= d['id'] && d['action_type'] == 'move') {
-      return "opacity: " + Math.round((d['id']/currStep) * 100) + ";"
-    } else if(currStep >= d['id'] && d['action_type'] == 'markedge') {
-      return "stroke-dasharray: 5,0; color: #333;"
+    if(currStep >= d['id'] && d['action_type'] == 'markedge') {
+      return "stroke-dasharray: 5,0; stroke: #333;"
     } else if(currStep >= d['id'] && d['action_type'] == 'unmarkedge') {
-      return "stroke-dasharray: 5,5; color: #AAA;"
-  }});
-
+      return "stroke-dasharray: 5,5; stroke: #AAA;"
+    }})
   node
   .attr("transform", function(d) {
     return "translate(" + d.x + "," + d.y + ")"; });
@@ -170,13 +174,55 @@ function tick() {
 
 // follow player moves with data with arrow keys
 function keydown() {
-  console.log(d3.event.keyCode, currStep)
   if (d3.event.keyCode == 37) {
-    currStep = Math.max(0, currStep - 1)
+    currStep = Math.max(1, currStep - 1)
   } else if (d3.event.keyCode == 39) {
     currStep = Math.min(currStep + 1, maxStep)
   }
-}
+  currStepData = data[currStep + 8]
+  path.attr("d", function(d) {
+    if (currStep >= d['id'] && d['action_type'] == 'move') {
+      var dx = d.target.x - d.source.x,
+      dy = d.target.y - d.source.y,
+      dr = Math.sqrt(dx * dx + dy * dy);
+      return "M" +
+      d.source.x + "," +
+      d.source.y + "A" +
+      dr + "," + dr + " 0 0,1 " +
+      d.target.x + "," +
+      d.target.y;
+    } else {
+      return "";
+    }
+  })
+  .attr("style", function(d){
+    if(currStep >= d['id'] && d['action_type'] == 'move') {
+      return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
+    }
+  });
+  edge.attr("d", function(d) {
+    var dx = d.target.x - d.source.x,
+    dy = d.target.y - d.source.y,
+    dr = 0;
+    return "M" +
+    d.source.x + "," +
+    d.source.y + "A" +
+    dr + "," + dr + " 0 0,1 " +
+    d.target.x + "," +
+    d.target.y;
+  }).attr("style", function(d) {
+    if(currStep >= d['id'] && d['action_type'] == 'markedge') {
+      return "stroke-dasharray: 5,0; stroke: #333;"
+    } else if(currStep >= d['id'] && d['action_type'] == 'unmarkedge') {
+      return "stroke-dasharray: 5,5; stroke: #AAA;"
+    }})
+  var currStepData = data[currStep + 7]
+  svg.selectAll('.moveText')
+.attr("x", 12)
+.attr('y', 50 )
+.attr("dy", ".35em")
+.text('Move ' + currStep + ': ' + currStepData['action_type'] + ' edge ' + currStepData['start_node'] + currStepData['end_node']);
+};
 
 // action to take on mouse click
 function click() {
