@@ -80,6 +80,7 @@ svg
 .attr("x", 12)
 .attr('y', 50 )
 .attr("dy", ".35em").text('Use the arrows to navigate through the player moves').attr('class','moveText')
+
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
     .data(["end"])      // Different link/path types can be defined here
@@ -159,28 +160,9 @@ function tick() {
     d.target.x + "," +
     d.target.y;
   })
-  .each(function(d) {
-    if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
-      markedEdges[d.id] = [d3.select(this), currStep]
-      if (unmarkedEdges[d.id]) {
-        unmarkedEdges[d.id] = null;
-      }
-    } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
-      unmarkedEdges[d.id] = [d3.select(this), currStep]
-      if (markedEdges[d.id]) {
-        markedEdges[d.id] = null;
-      }
-    }
-  });
+  .each(setupMarking);
 
-  for (var d in markedEdges) {
-    d = markedEdges[d][0]
-    d.attr('class', 'edge marked');
-  }
-  for (var d in unmarkedEdges) {
-    d = unmarkedEdges[d][0]
-    d.attr('class', 'edge unmarked');
-  }
+  renderMarking();
 
   node
   .attr("transform", function(d) {
@@ -194,7 +176,9 @@ function keydown() {
   } else if (d3.event.keyCode == 39) {
     currStep = Math.min(currStep + 1, maxStep)
   }
+
   currStepData = data[currStep + action_offset]
+
   path.attr("d", function(d) {
     if (currStep >= d['id'] && d['action_type'] == 'move') {
       var dx = d.target.x - d.source.x,
@@ -225,35 +209,9 @@ function keydown() {
     dr + "," + dr + " 0 0,1 " +
     d.target.x + "," +
     d.target.y;
-  }).each(function(d) {
-    if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
-      markedEdges[d.edge_index] = [d3.select(this),currStep]
-      if (unmarkedEdges[d.edge_index]) {
-        delete unmarkedEdges[d.edge_index];
-      }
-    } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
-      unmarkedEdges[d.edge_index] = [d3.select(this),currStep]
-      if (markedEdges[d.edge_index]) {
-        delete markedEdges[d.edge_index];
-      }
-    }
-  });
-  for (var d in markedEdges) {
-    line = markedEdges[d]
-    console.log(line)
-    if(line[1] > currStep) {
-      console.log(line[1])
-      delete markedEdges[d]
-      line[0].attr('class', 'edge unmarked');
-    } else {
-    line[0].attr('class', 'edge marked');
-  }
-  }
-  for (var d in unmarkedEdges) {
-    d = unmarkedEdges[d][0]
-    d.attr('class', 'edge unmarked');
-  }
+  }).each(setupMarking);
 
+  renderMarking();
   svg.selectAll('.moveText')
   .attr("x", 12)
   .attr('y', 50 )
@@ -261,6 +219,35 @@ function keydown() {
   .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' on edge ' + currStepData['start_node'] + currStepData['end_node']);
 };
 
+function setupMarking(d) {
+  if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'markedge') {
+    markedEdges[d.edge_index] = [d3.select(this),currStep]
+    if (unmarkedEdges[d.edge_index]) {
+      delete unmarkedEdges[d.edge_index];
+    }
+  } else if(currStepData['edge_index'] == d['edge_index'] && currStepData['action_type'] == 'unmarkedge') {
+    unmarkedEdges[d.edge_index] = [d3.select(this),currStep]
+    if (markedEdges[d.edge_index]) {
+      delete markedEdges[d.edge_index];
+    }
+  }
+}
+
+function renderMarking() {
+  for (var d in markedEdges) {
+    line = markedEdges[d]
+    if(line[1] > currStep) {
+      delete markedEdges[d]
+      line[0].attr('class', 'edge unmarked');
+    } else {
+      line[0].attr('class', 'edge marked');
+    }
+  }
+  for (var d in unmarkedEdges) {
+    d = unmarkedEdges[d][0]
+    d.attr('class', 'edge unmarked');
+  }
+}
 // action to take on mouse click
 function click() {
   d3.select(this).select("text").transition()
