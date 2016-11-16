@@ -144,41 +144,6 @@ node.append("text")
 // add the curvy lines
 function tick() {
   updateGraphHelper();
-  // path.attr("d", function(d) {
-  //   if (currStep >= d['id'] && d['action_type'] == 'move') {
-  //     var dx = d.target.x - d.source.x,
-  //     dy = d.target.y - d.source.y,
-  //     dr = Math.sqrt(dx * dx + dy * dy);
-  //     return "M" +
-  //     d.source.x + "," +
-  //     d.source.y + "A" +
-  //     dr + "," + dr + " 0 0,1 " +
-  //     d.target.x + "," +
-  //     d.target.y;
-  //   } else {
-  //     return "";
-  //   }
-  // })
-  // .attr("style", function(d){
-  //   if(currStep >= d['id'] && d['action_type'] == 'move') {
-  //     return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
-  //   }
-  // });
-
-  // edge.attr("d", function(d) {
-  //   var dx = d.target.x - d.source.x,
-  //   dy = d.target.y - d.source.y,
-  //   dr = 0;
-  //   return "M" +
-  //   d.source.x + "," +
-  //   d.source.y + "A" +
-  //   dr + "," + dr + " 0 0,1 " +
-  //   d.target.x + "," +
-  //   d.target.y;
-  // })
-  // .each(setupMarking);
-
-  // renderMarking();
 
   node
   .attr("transform", function(d) {
