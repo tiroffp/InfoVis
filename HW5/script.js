@@ -1,4 +1,4 @@
-//sourced from http://bl.ocks.org/d3noob/5155181
+//sourced from http://bl.ocks.org/d3noob/5155181 as well as https://bl.ocks.org/mbostock/3750558
 
 // get the data
 d3.csv("game_log.csv",parseData,loadData)
@@ -22,6 +22,8 @@ function loadData(error, data) {
  var unmarkedEdges = {}
  var action_offset = 0 //since edge setup and player actions are in same file, add this number to action id to directly access it from data array
  // might be able to refactor data parsing get rid of this and infer edges from actions
+ var currNode = {}
+ var treeWeight = 0;
 
 // Compute the distinct nodes and edges , seperate moves out from game log.
 data.forEach(function(d) {
@@ -56,6 +58,9 @@ var force = d3.layout.force()
 .on("tick", tick)
 .start();
 
+var drag = force.drag()
+.on("dragstart", dragstart);
+
 // Set the range
 var  v = d3.scale.linear().range([0, 100]);
 
@@ -87,7 +92,7 @@ svg.append("svg:defs").selectAll("marker")
   .enter().append("svg:marker")    // This section adds in the arrows
   .attr("id", String)
   .attr("viewBox", "0 -5 10 10")
-  .attr("refX", 15)
+  .attr("refX", 27)
   .attr("refY", -1.5)
   .attr("markerWidth", 6)
   .attr("markerHeight", 6)
@@ -127,19 +132,27 @@ var node = svg.selectAll(".node")
 .data(force.nodes())
 .enter().append("g")
 .attr("class", "node")
-.on("click", click)
 .on("dblclick", dblclick)
 .call(force.drag);
 
 // add the nodes
 node.append("circle")
-.attr("r", 5);
+.attr("r", 15);
 
 // add the text
 node.append("text")
-.attr("x", 12)
+.attr("x", -4)
 .attr("dy", ".35em")
 .text(function(d) { return d.name; });
+
+node.on({
+  "mouseover": function(d) {
+    d3.select(this).style("cursor", "pointer")
+  },
+  "mouseout": function(d) {
+    d3.select(this).style("cursor", "default")
+  }
+});
 
 // add the curvy lines
 function tick() {
@@ -166,7 +179,9 @@ function keydown() {
   .attr("x", 12)
   .attr('y', 50 )
   .attr("dy", ".35em")
-  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' on edge ' + currStepData['start_node'] + currStepData['end_node']);
+  .text('Move ' + currStep + ': ' + currStepData['action_type'] + ' on edge ' + currStepData['start_node'] + currStepData['end_node'])
+  .append("text")
+  .text('testlin');
 };
 
 function updateGraphHelper() {
@@ -186,8 +201,10 @@ function updateGraphHelper() {
     }
   })
   .attr("style", function(d){
-    if(currStep >= d['id'] && d['action_type'] == 'move') {
-      return "opacity: " + Math.round((d['id']/currStep) * 100)/100 + ";"
+    if(currStep == d['id'] && d['action_type'] == 'move') {
+      return "opacity: 1;"
+    } else if(currStep > d['id'] && d['action_type'] == 'move') {
+      return "opacity: .03;"
     }
   });
 
@@ -220,6 +237,8 @@ function updateGraphHelper() {
     if(line[1] > currStep) {
       delete markedEdges[markedEdge]
       line[0].attr('class', 'edge unmarked');
+    } else if(line[1] == currStep) {
+      line[0].attr('class', 'edge justmarked')
     } else {
       line[0].attr('class', 'edge marked');
     }
@@ -228,35 +247,23 @@ function updateGraphHelper() {
     d = unmarkedEdges[unmarkedEdge][0]
     d.attr('class', 'edge unmarked');
   }
-}
-// action to take on mouse click
-function click() {
-  d3.select(this).select("text").transition()
-  .duration(750)
-  .attr("x", 22)
-  .style("fill", "steelblue")
-  .style("stroke", "lightsteelblue")
-  .style("stroke-width", ".5px")
-  .style("font", "20px sans-serif");
-  d3.select(this).select("circle").transition()
-  .duration(750)
-  .attr("r", 16)
-  .style("fill", "lightsteelblue");
+
+  node.each(function(d){
+    if (currStepData['action_type'] == 'move' && d['name'] == currStepData['end_node']) {
+      currNode = this
+    } else {
+    d3.select(this).attr('style','stroke: #fff')
+  }
+  })
+    d3.select(currNode).attr('style','stroke: #FAA')
 }
 
-// action to take on mouse double click
-function dblclick() {
-  d3.select(this).select("circle").transition()
-  .duration(750)
-  .attr("r", 6)
-  .style("fill", "#ccc");
-  d3.select(this).select("text").transition()
-  .duration(750)
-  .attr("x", 12)
-  .style("stroke", "none")
-  .style("fill", "black")
-  .style("stroke", "none")
-  .style("font", "10px sans-serif");
+function dragstart(d) {
+  d3.select(this).classed("fixed", d.fixed = true);
+}
+
+function dblclick(d) {
+  d3.select(this).classed("fixed", d.fixed = false);
 }
 
 };

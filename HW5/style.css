@@ -33,7 +33,14 @@ path.edge.marked {
   stroke-dasharray: 5,0;
 }
 
-circle {
+path.edge.justmarked {
+  fill: none;
+  stroke: #F00;
+  stroke-width: 1.5px;
+  stroke-dasharray: 5,0;
+}
+
+circle, .inner {
   fill: #ccc;
   stroke: #fff;
   stroke-width: 1.5px;
@@ -43,4 +50,8 @@ text {
   fill: #000;
   font: 10px sans-serif;
   pointer-events: none;
+}
+
+.node.fixed circle {
+  fill: lightsteelblue;
 }
